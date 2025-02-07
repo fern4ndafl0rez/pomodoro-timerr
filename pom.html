@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="pomo.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="timer-container">
+        <div class="timer-circle">
+            <svg width="200" height="200">
+                <circle class="timer-background" cx="100" cy="100" r="90"/>
+                <circle class="timer-progress" cx="100" cy="100" r="90"
+                    stroke-dasharray="565.48" stroke-dashoffset="0"/>
+            </svg>
+            <div class="timer-text">25:00</div>
+        </div>
+        <div class="timer-label">FOCUS</div>
+        <div class="controls">
+            <button onclick="startTimer()">Iniciar</button>
+            <button onclick="resetTimer()">Reiniciar</button>
+        </div>
+    </div>
+    <script src="pomod.js"></script>
+</body>
+</html>
