@@ -49,6 +49,7 @@ body {
 
 .timer-label {
     margin-top: 10px;
+    margin-bottom: 15px;
     font-size: 1.2em;
     text-transform: uppercase;
     letter-spacing: 2px;
@@ -56,22 +57,27 @@ body {
 }
 
 .controls {
-    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 20px; /* Aumenté el espacio entre botones */
+    width: 100%;
+    margin-top: 20px; /* Más espacio arriba de los botones */
+    padding: 0 20px; /* Padding horizontal para evitar que toquen los bordes */
 }
 
 button {
     background-color: #8C735D;
     color: white;
     border: none;
-    padding: 10px 20px;
+    padding: 12px 28px; /* Aumenté un poco el padding */
     border-radius: 5px;
     cursor: pointer;
-    margin: 0 5px;
     transition: background-color 0.3s ease;
     font-family: 'Poppins', sans-serif;
     font-weight: 400;
     font-size: 14px;
     letter-spacing: 0.5px;
+    min-width: 100px; /* Asegura un ancho mínimo para los botones */
 }
 
 button:hover {
