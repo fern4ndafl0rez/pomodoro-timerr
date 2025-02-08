@@ -3,25 +3,63 @@ const SHORT_BREAK = 5 * 60;
 const LONG_BREAK = 10 * 60;
 const FULL_DASH_ARRAY = 565.48;
 
-let timeLeft = WORK_TIME;
+let timeLeft;
 let timerId = null;
-let currentMode = 'work';
-let workSessionsCompleted = 0;
+let currentMode;
+let workSessionsCompleted;
+let startTime;
+
+// Inicializar o restaurar el estado
+function initializeTimer() {
+    const savedState = JSON.parse(localStorage.getItem('pomodoro-state'));
+    
+    if (savedState && savedState.isRunning) {
+        // Restaurar estado guardado
+        currentMode = savedState.currentMode;
+        workSessionsCompleted = savedState.workSessionsCompleted;
+        startTime = savedState.startTime;
+        
+        // Calcular tiempo restante
+        const elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
+        timeLeft = savedState.totalTime - elapsedSeconds;
+        
+        if (timeLeft <= 0) {
+            handleTimerComplete();
+        } else {
+            updateTimer();
+            startTimer();
+        }
+    } else {
+        // Iniciar nuevo estado
+        resetTimer();
+    }
+}
 
 function startTimer() {
     if (timerId === null) {
+        // Guardar estado inicial
+        startTime = Date.now() - ((getCurrentModeTime() - timeLeft) * 1000);
+        saveState(true);
+        
         timerId = setInterval(() => {
-            timeLeft--;
-            updateTimer();
+            const elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
+            timeLeft = getCurrentModeTime() - elapsedSeconds;
             
-            if (timeLeft === 0) {
-                clearInterval(timerId);
-                timerId = null;
-                playSound();
-                switchMode();
+            if (timeLeft <= 0) {
+                handleTimerComplete();
+            } else {
+                updateTimer();
             }
         }, 1000);
     }
+}
+
+function handleTimerComplete() {
+    clearInterval(timerId);
+    timerId = null;
+    playSound();
+    switchMode();
+    saveState(false);
 }
 
 function resetTimer() {
@@ -32,6 +70,7 @@ function resetTimer() {
     timeLeft = WORK_TIME;
     updateTimer();
     updateLabel('FOCUS');
+    localStorage.removeItem('pomodoro-state');
 }
 
 function updateTimer() {
@@ -50,7 +89,6 @@ function switchMode() {
     if (currentMode === 'work') {
         workSessionsCompleted++;
         if (workSessionsCompleted % 2 === 0) {
-            // Después de cada 2 sesiones de trabajo, descanso largo
             currentMode = 'longBreak';
             timeLeft = LONG_BREAK;
             updateLabel('LONG BREAK');
@@ -64,7 +102,9 @@ function switchMode() {
         timeLeft = WORK_TIME;
         updateLabel('FOCUS');
     }
+    startTime = Date.now();
     updateTimer();
+    startTimer();
 }
 
 function getCurrentModeTime() {
@@ -84,3 +124,24 @@ function playSound() {
     const audio = document.getElementById('timerComplete');
     audio.play().catch(e => console.log('Error playing sound:', e));
 }
+
+function saveState(isRunning) {
+    const state = {
+        isRunning,
+        currentMode,
+        workSessionsCompleted,
+        startTime,
+        totalTime: getCurrentModeTime(),
+    };
+    localStorage.setItem('pomodoro-state', JSON.stringify(state));
+}
+
+// Inicializar cuando se carga la página
+window.addEventListener('load', initializeTimer);
+
+// Actualizar cuando la pestaña vuelve a estar activa
+document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && timerId === null) {
+        initializeTimer();
+    }
+});
